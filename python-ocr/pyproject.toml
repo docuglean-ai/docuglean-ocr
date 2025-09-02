@@ -1,0 +1,55 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "docuglean-ocr"
+version = "1.0.0"
+description = "An SDK for intelligent document processing using SOTA VLLM models"
+readme = "README.md"
+license = {text = "Apache-2.0"}
+authors = [{name = "docuglean-ai", email = "contact@docuglean.ai"}]
+keywords = ["ocr", "document", "llm", "document-processing", "text-extraction"]
+requires-python = ">=3.11"
+dependencies = [
+    "google-genai>=1.32.0",
+    "httpx>=0.25.0", 
+    "openai>=1.0.0",
+    "mistralai>=0.0.10",
+    "pydantic>=2.0.0",
+    "transformers>=4.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0", "pytest-asyncio>=0.24.0", "ruff>=0.12.0"]
+
+[project.urls]
+Repository = "https://github.com/docuglean-ai/docuglean-ocr"
+Issues = "https://github.com/docuglean-ai/docuglean-ocr/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docuglean"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP", "ANN", "B", "C4", "DTZ", "T20", "RUF"]
+ignore = ["E501", "B904"]  # Ignore line length, exception chaining
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]  # Don't require annotations in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/simple/"
+publish-url = "https://test.pypi.org/legacy/"
+explicit = true
+

@@ -1,0 +1,45 @@
+{
+  "name": "docuglean",
+  "version": "1.0.0",
+  "description": "A unified SDK for intelligent document processing using State of the Art AI models.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsx ./test/index.ts",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run build"
+  },
+  "keywords": [
+    "ocr",
+    "document",
+    "ai models",
+    "typescript",
+    "llm",
+    "document-processing",
+    "text-extraction"
+  ],
+  "author": "docuglean-ai",
+  "license": "AGPL-3.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/docuglean-ai/docuglean.git"
+  },
+  "bugs": {
+    "url": "https://github.com/docuglean-ai/docuglean/issues"
+  },
+  "homepage": "https://github.com/docuglean-ai/docuglean#readme",
+  "files": [
+    "dist"
+  ],
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@mistralai/mistralai": "^1.6.1",
+    "openai": "^4.103.0",
+    "zod": "^3.25.30"
+  }
+}

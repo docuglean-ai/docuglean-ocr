@@ -1,0 +1,30 @@
+LICENSE.md
+README.md
+
+# Source files
+src/
+
+# Test files
+test/
+coverage/
+*.test.ts
+*.spec.ts
+
+# Development configs
+.github/
+.vscode/
+.idea/
+.env*
+tsconfig.json
+
+# Logs and temp files
+*.log
+.DS_Store
+
+# Git files
+.git/
+.gitignore
+
+# Documentation and examples
+docs/
+examples/
