@@ -169,8 +169,12 @@ const documentInfo = await extract({
   prompt: 'Extract document metadata and summary'
 });
 
-// Summarization via extract (no dedicated summarize function needed)
-const SummarySchema = z.object({ summary: z.string() });
+// Summarization via extract
+const SummarySchema = z.object({
+  title: z.string().optional(),
+  summary: z.string(),
+  keyPoints: z.array(z.string()),
+});
 const summary = await extract({
   filePath: './long-report.pdf',
   provider: 'openai',
@@ -180,6 +184,8 @@ const summary = await extract({
 });
 console.log('Summary:', summary.summary);
 ```
+
+Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
 
 Check out our [test folder](./test) for more comprehensive examples and use cases, including:
 - Receipt parsing
