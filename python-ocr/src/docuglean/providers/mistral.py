@@ -89,7 +89,7 @@ async def process_ocr_mistral(config: OCRConfig) -> MistralOCRResponse:
         raise Exception("Mistral OCR failed: Unknown error")
 
 
-async def process_doc_extraction_mistral(config: ExtractConfig) -> str | StructuredExtractionResult:
+async def process_doc_extraction_mistral(config: ExtractConfig) -> StructuredExtractionResult:
     """
     Process document extraction using Mistral AI.
 
@@ -138,42 +138,28 @@ async def process_doc_extraction_mistral(config: ExtractConfig) -> str | Structu
             "content": content
         })
 
-        # Step 4: if a response format is provided, use structured output, otherwise use regular output
-        if config.response_format:
-            # Use structured output with Pydantic schema
-            response = client.chat.complete(
-                model=config.model or "mistral-small-latest",
-                messages=messages,
-                response_format={
-                    "type": "json_object"
-                },
-                temperature=0  # Better for structured output
+        # Use structured output with Pydantic schema
+        response = client.chat.complete(
+            model=config.model or "mistral-small-latest",
+            messages=messages,
+            response_format={
+                "type": "json_object"
+            },
+            temperature=0  # Better for structured output
+        )
+
+        if not response or not response.choices or not response.choices[0].message:
+            raise Exception("No valid response from Mistral document extraction")
+
+        # For structured output, we need to parse the JSON response
+        try:
+            parsed_data = json.loads(response.choices[0].message.content)
+            return StructuredExtractionResult(
+                raw=response.choices[0].message.content,
+                parsed=parsed_data
             )
-
-            if not response or not response.choices or not response.choices[0].message:
-                raise Exception("No valid response from Mistral document extraction")
-
-            # For structured output, we need to parse the JSON response
-            try:
-                parsed_data = json.loads(response.choices[0].message.content)
-                return StructuredExtractionResult(
-                    raw=response.choices[0].message.content,
-                    parsed=parsed_data
-                )
-            except json.JSONDecodeError:
-                # Fallback to raw response if JSON parsing fails
-                return response.choices[0].message.content
-        else:
-            # Regular unstructured output
-            response = client.chat.complete(
-                model=config.model or "mistral-small-latest",
-                messages=messages
-            )
-
-            if not response or not response.choices or not response.choices[0].message or not response.choices[0].message.content:
-                raise Exception("No valid response from Mistral document extraction")
-
-            return response.choices[0].message.content
+        except json.JSONDecodeError as e:
+            raise Exception(f"Failed to parse structured response from Mistral: {e}")
 
     except Exception as error:
         if isinstance(error, Exception):

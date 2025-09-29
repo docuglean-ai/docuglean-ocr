@@ -84,7 +84,7 @@ export interface ExtractConfig {
   provider?: Provider;
   model?: string;
   prompt?: string;
-  responseFormat?: z.ZodType<any>;
+  responseFormat: z.ZodType<any>;
   systemPrompt?: string;
 }
 

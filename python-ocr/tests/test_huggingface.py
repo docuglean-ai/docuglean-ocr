@@ -87,20 +87,30 @@ async def test_huggingface_ocr_base64_image():
 
 
 @pytest.mark.asyncio
-async def test_huggingface_extract_unstructured():
-    """Test Hugging Face unstructured extraction."""
+async def test_huggingface_extract_structured():
+    """Test Hugging Face structured extraction."""
+    from pydantic import BaseModel
+    
+    class DocumentInfo(BaseModel):
+        objects: list[str]
+        text: str
+        description: str
+    
     config = ExtractConfig(
         file_path=TEST_IMAGE_URL,
         provider="huggingface",
         model="HuggingFaceTB/SmolVLM-Instruct",
+        response_format=DocumentInfo,
         prompt="Analyze this document and extract key information."
     )
 
     result = await extract(config)
 
-    assert isinstance(result, str)
-    assert len(result) > 0
-    print(f"HuggingFace extraction result: {result[:200]}...")
+    assert hasattr(result, 'raw')
+    assert hasattr(result, 'parsed')
+    assert len(result.raw) > 0
+    print(f"HuggingFace extraction result - Raw: {result.raw[:200]}...")
+    print(f"HuggingFace extraction result - Parsed: {result.parsed}")
 
 
 @pytest.mark.asyncio

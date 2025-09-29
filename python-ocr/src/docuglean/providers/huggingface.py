@@ -109,7 +109,7 @@ async def process_ocr_huggingface(config: OCRConfig) -> HuggingFaceOCRResponse:
         raise Exception("Hugging Face OCR failed: Unknown error")
 
 
-async def process_doc_extraction_huggingface(config: ExtractConfig) -> str | StructuredExtractionResult:
+async def process_doc_extraction_huggingface(config: ExtractConfig) -> StructuredExtractionResult:
     """
     Process document extraction using Hugging Face vision-language models.
 
@@ -126,44 +126,37 @@ async def process_doc_extraction_huggingface(config: ExtractConfig) -> str | Str
         # Default model if none specified (use smaller, faster model)
         model_name = config.model or "HuggingFaceTB/SmolVLM-Instruct"
 
-        # Prepare prompt - add structured output if response_format is specified
-        if config.response_format:
-            structured_prompt = f"""{config.prompt or "Extract information from this document"}
+        # Prepare prompt for structured output
+        structured_prompt = f"""{config.prompt or "Extract all information from this document"}
 
-            Return response as valid JSON only. Example format:
-            {{
-                "objects": ["detected objects"],
-                "text": "any text in document",
-                "description": "brief description"
-            }}"""
-            prompt = structured_prompt
-        else:
-            prompt = config.prompt or "Extract and analyze the main content from this document."
+        Return response as valid JSON only. Example format:
+        {{
+            "objects": ["detected objects"],
+            "text": "any text in document",
+            "description": "brief description"
+        }}"""
 
         # Use shared function with manual approach (pipeline has issues)
-        result = _process_single_image_basic(model_name, config.file_path, prompt, use_pipeline=False)
+        result = _process_single_image_basic(model_name, config.file_path, structured_prompt, use_pipeline=False)
 
         # Handle structured output
-        if config.response_format:
-            try:
-                # Try to extract JSON from response
-                json_match = re.search(r'\{.*\}', result, re.DOTALL)
-                if json_match:
-                    parsed_json = json.loads(json_match.group())
-                    return StructuredExtractionResult(
-                        raw=result,
-                        parsed=parsed_json
-                    )
-            except (json.JSONDecodeError, AttributeError):
-                pass
+        try:
+            # Try to extract JSON from response
+            json_match = re.search(r'\{.*\}', result, re.DOTALL)
+            if json_match:
+                parsed_json = json.loads(json_match.group())
+                return StructuredExtractionResult(
+                    raw=result,
+                    parsed=parsed_json
+                )
+        except (json.JSONDecodeError, AttributeError) as e:
+            raise Exception(f"Failed to parse structured response from HuggingFace: {e}")
 
-            # Fallback: return raw response if JSON parsing fails
-            return StructuredExtractionResult(
-                raw=result,
-                parsed={"raw_response": result}
-            )
-
-        return result
+        # Fallback: return raw response if JSON parsing fails
+        return StructuredExtractionResult(
+            raw=result,
+            parsed={"raw_response": result}
+        )
 
     except ImportError as e:
         raise Exception(f"Required dependencies not installed: {e}. Please install with: uv add transformers")

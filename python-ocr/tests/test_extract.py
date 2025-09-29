@@ -30,39 +30,26 @@ pytestmark = pytest.mark.skipif(
 
 
 @pytest.mark.asyncio
-async def test_mistral_unstructured_pdf_url():
-    """Test Mistral unstructured extraction with PDF URL."""
+async def test_mistral_structured_pdf_url():
+    """Test Mistral structured extraction with PDF URL."""
     config = ExtractConfig(
         file_path=TEST_PDF_URL,
         provider="mistral",
         model="mistral-small-latest",
         api_key=os.getenv("MISTRAL_API_KEY"),
-        prompt="Summarize the main findings of this research paper."
+        response_format=Receipt,
+        prompt="Extract key information from this research paper including title, authors, and main findings."
     )
 
     result = await extract(config)
 
-    assert isinstance(result, str)
-    assert len(result) > 0
-    print(f"URL PDF extraction result: {result[:200]}...")
+    assert hasattr(result, 'raw')
+    assert hasattr(result, 'parsed')
+    assert len(result.raw) > 0
+    print(f"URL PDF extraction result - Raw: {result.raw[:200]}...")
+    print(f"URL PDF extraction result - Parsed: {result.parsed}")
 
 
-@pytest.mark.asyncio
-async def test_mistral_unstructured_local_pdf():
-    """Test Mistral unstructured extraction with local PDF."""
-    config = ExtractConfig(
-        file_path="./tests/data/receipt.pdf",
-        provider="mistral",
-        model="mistral-small-latest",
-        api_key=os.getenv("MISTRAL_API_KEY"),
-        prompt="Extract and summarize the receipt details."
-    )
-
-    result = await extract(config)
-
-    assert isinstance(result, str)
-    assert len(result) > 0
-    print(f"Local PDF extraction result: {result[:200]}...")
 
 
 @pytest.mark.asyncio

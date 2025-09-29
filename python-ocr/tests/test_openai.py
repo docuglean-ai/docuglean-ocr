@@ -72,21 +72,24 @@ async def test_openai_ocr_local_image():
 
 
 @pytest.mark.asyncio
-async def test_openai_extract_unstructured_pdf():
-    """Test OpenAI unstructured extraction with PDF URL."""
+async def test_openai_extract_structured_pdf():
+    """Test OpenAI structured extraction with PDF URL."""
     config = ExtractConfig(
         file_path=TEST_PDF_URL,
         provider="openai",
         model="gpt-5-mini",
         api_key=os.getenv("OPENAI_API_KEY"),
-        prompt="Summarize the key points from this document."
+        response_format=Receipt,
+        prompt="Extract key information from this research paper including title, authors, and main findings."
     )
 
     result = await extract(config)
 
-    assert isinstance(result, str)
-    assert len(result) > 0
-    print(f"OpenAI unstructured extraction result: {result[:200]}...")
+    assert hasattr(result, 'raw')
+    assert hasattr(result, 'parsed')
+    assert len(result.raw) > 0
+    print(f"OpenAI structured extraction result - Raw: {result.raw[:200]}...")
+    print(f"OpenAI structured extraction result - Parsed: {result.parsed}")
 
 
 @pytest.mark.asyncio

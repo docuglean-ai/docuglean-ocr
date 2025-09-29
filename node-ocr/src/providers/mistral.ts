@@ -72,7 +72,7 @@ export async function processOCRMistral(config: OCRConfig): Promise<MistralOCRRe
 
 export async function processDocExtractionMistral(
   config: ExtractConfig
-): Promise<string | StructuredExtractionResult<BaseStructuredOutput>> {
+): Promise<StructuredExtractionResult<BaseStructuredOutput>> {
   const client = new Mistral({ apiKey: config.apiKey });
   
   try {
@@ -107,37 +107,22 @@ export async function processDocExtractionMistral(
       }
     ];
 
-    // Step 2: if a response format is provided, use it, otherwise use the regular unstructured output
-    if (config.responseFormat) {
-      // Use structured output with Zod schema
-      const response = await client.chat.parse({
-        model: config.model || 'mistral-small-latest',
-        messages,
-        responseFormat: config.responseFormat,
-        temperature: 0 // Better for structured output
-      });
+    // Use structured output with Zod schema
+    const response = await client.chat.parse({
+      model: config.model || 'mistral-small-latest',
+      messages,
+      responseFormat: config.responseFormat,
+      temperature: 0 // Better for structured output
+    });
 
-      if (!response?.choices?.[0]?.message) {
-        throw new Error('No valid response from Mistral document extraction');
-      }
-
-      return {
-        raw: response.choices[0].message.content as string, // raw output from Mistral
-        parsed: response.choices[0].message.parsed as BaseStructuredOutput // parsed output from Mistral
-      };
-    } else {
-      // Regular unstructured output
-      const response = await client.chat.complete({
-        model: config.model || 'mistral-small-latest',
-        messages
-      });
-
-      if (!response?.choices?.[0]?.message?.content || typeof response.choices[0].message.content !== 'string') {
-        throw new Error('No valid response from Mistral document extraction');
-      }
-
-      return response.choices[0].message.content;
+    if (!response?.choices?.[0]?.message) {
+      throw new Error('No valid response from Mistral document extraction');
     }
+
+    return {
+      raw: response.choices[0].message.content as string, // raw output from Mistral
+      parsed: response.choices[0].message.parsed as BaseStructuredOutput // parsed output from Mistral
+    };
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`Mistral document extraction failed: ${error.message}`);

@@ -125,7 +125,7 @@ class ExtractConfig(BaseModel):
     provider: Provider | None = None
     model: str | None = None
     prompt: str | None = None
-    response_format: Any | None = Field(alias="responseFormat", default=None)
+    response_format: Any = Field(alias="responseFormat")  # Required for structured extraction
     system_prompt: str | None = Field(alias="systemPrompt", default=None)
 
     model_config = ConfigDict(validate_by_name=True)

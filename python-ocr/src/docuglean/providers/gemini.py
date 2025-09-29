@@ -100,7 +100,7 @@ async def process_ocr_gemini(config: OCRConfig) -> GeminiOCRResponse:
         raise Exception("Gemini OCR failed: Unknown error")
 
 
-async def process_doc_extraction_gemini(config: ExtractConfig) -> str | StructuredExtractionResult:
+async def process_doc_extraction_gemini(config: ExtractConfig) -> StructuredExtractionResult:
     """
     Process document extraction using Google Gemini.
 
@@ -123,42 +123,28 @@ async def process_doc_extraction_gemini(config: ExtractConfig) -> str | Structur
         # Prepare content using utility function
         content = _prepare_gemini_content(config.file_path, prompt)
 
-        # Check if structured output is requested
-        if config.response_format:
-            # Use structured output with Pydantic schema
-            response = client.models.generate_content(
-                model=config.model or "gemini-2.5-flash",
-                contents=content,
-                config={
-                    "response_mime_type": "application/json",
-                    "response_schema": config.response_format,
-                }
+        # Use structured output with Pydantic schema
+        response = client.models.generate_content(
+            model=config.model or "gemini-2.5-flash",
+            contents=content,
+            config={
+                "response_mime_type": "application/json",
+                "response_schema": config.response_format,
+            }
+        )
+
+        if not response or not response.text:
+            raise Exception("No response from Gemini document extraction")
+
+        try:
+            # Parse the JSON response
+            parsed_data = json.loads(response.text)
+            return StructuredExtractionResult(
+                raw=response.text,
+                parsed=parsed_data
             )
-
-            if not response or not response.text:
-                raise Exception("No response from Gemini document extraction")
-
-            try:
-                # Parse the JSON response
-                parsed_data = json.loads(response.text)
-                return StructuredExtractionResult(
-                    raw=response.text,
-                    parsed=parsed_data
-                )
-            except json.JSONDecodeError:
-                # If JSON parsing fails, return as raw text
-                return response.text
-        else:
-            # Regular unstructured output
-            response = client.models.generate_content(
-                model=config.model or "gemini-2.5-flash",
-                contents=content
-            )
-
-            if not response or not response.text:
-                raise Exception("No response from Gemini document extraction")
-
-            return response.text
+        except json.JSONDecodeError as e:
+            raise Exception(f"Failed to parse structured response from Gemini: {e}")
 
     except Exception as error:
         if isinstance(error, Exception):
