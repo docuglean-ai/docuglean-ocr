@@ -40,6 +40,7 @@
   "dependencies": {
     "@google/genai": "^1.16.0",
     "@mistralai/mistralai": "^1.6.1",
+    "pdf2json": "^2.0.1",
     "openai": "^4.103.0",
     "zod": "^3.25.30"
   }

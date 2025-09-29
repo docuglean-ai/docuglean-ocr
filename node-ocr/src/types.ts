@@ -1,5 +1,5 @@
 import { z } from 'zod';
-export type Provider = 'openai' | 'mistral' | 'gemini';
+export type Provider = 'openai' | 'mistral' | 'gemini' | 'local';
 
 export const validateConfig = (config: OCRConfig | ExtractConfig) => {
   if (!config.apiKey?.trim()) {
@@ -8,7 +8,7 @@ export const validateConfig = (config: OCRConfig | ExtractConfig) => {
   if (!config.filePath?.trim()) {
     throw new Error('Valid file path is required');
   }
-  if (config.provider && !['mistral', 'openai', 'gemini'].includes(config.provider)) {
+  if (config.provider && !['mistral', 'openai', 'gemini', 'local'].includes(config.provider)) {
     throw new Error(`Provider ${config.provider} not supported`);
   }
 };
@@ -74,8 +74,16 @@ export interface OCRConfig {
       topP?: number;
       topK?: number;
     };
+    local?: {
+      /** Force local parsing; only PDFs supported */
+      pdf?: boolean;
+    };
   };
   prompt?: string;
+}
+
+export interface LocalOCRResponse {
+  text: string;
 }
 
 export interface ExtractConfig {

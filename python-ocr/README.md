@@ -48,6 +48,14 @@ result = await ocr(
     model="Qwen/Qwen2.5-VL-3B-Instruct",
     prompt="Extract all text from this image"
 )
+
+# Local OCR (no API, PDFs only) using PyMuPDF
+result = await ocr(
+    file_path="./document.pdf",
+    provider="local",
+    api_key="local"
+)
+print("Local text:", result.text[:200] + "...")
 ```
 
 ### Structured Data Extraction

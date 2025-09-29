@@ -6,7 +6,7 @@ from typing import Any, Literal, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
-Provider = Literal["openai", "mistral", "huggingface", "gemini"]
+Provider = Literal["openai", "mistral", "huggingface", "gemini", "local"]
 
 
 def validate_config(config: Union["OCRConfig", "ExtractConfig"]) -> None:
@@ -16,7 +16,7 @@ def validate_config(config: Union["OCRConfig", "ExtractConfig"]) -> None:
         raise ValueError("Valid API key is required")
     if not config.file_path or not config.file_path.strip():
         raise ValueError("Valid file path is required")
-    if config.provider and config.provider not in ["mistral", "openai", "huggingface", "gemini"]:
+    if config.provider and config.provider not in ["mistral", "openai", "huggingface", "gemini", "local"]:
         raise ValueError(f"Provider {config.provider} not supported")
 
 

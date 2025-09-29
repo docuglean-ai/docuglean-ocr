@@ -1,7 +1,8 @@
-import { OCRConfig, MistralOCRResponse, OpenAIOCRResponse, GeminiOCRResponse, validateConfig } from './types';
+import { OCRConfig, MistralOCRResponse, OpenAIOCRResponse, GeminiOCRResponse, LocalOCRResponse, validateConfig } from './types';
 import { processOCRMistral } from './providers/mistral';
 import { processOCROpenAI } from './providers/openai';
 import { processOCRGemini } from './providers/gemini';
+import { processOCRLocal } from './providers/local';
 
 /**
  * Processes a document using OCR with specified provider
@@ -9,7 +10,7 @@ import { processOCRGemini } from './providers/gemini';
  * @returns Processed text and metadata
  */
 
-export async function ocr(config: OCRConfig): Promise<MistralOCRResponse | OpenAIOCRResponse | GeminiOCRResponse> {
+export async function ocr(config: OCRConfig): Promise<MistralOCRResponse | OpenAIOCRResponse | GeminiOCRResponse | LocalOCRResponse> {
   // Default to mistral if no provider specified
   const provider = config.provider || 'mistral';
 
@@ -24,6 +25,8 @@ export async function ocr(config: OCRConfig): Promise<MistralOCRResponse | OpenA
       return processOCROpenAI(config);
     case 'gemini':
       return processOCRGemini(config);
+    case 'local':
+      return processOCRLocal(config);
     default:
       throw new Error(`Provider ${provider} not supported yet`);
   }

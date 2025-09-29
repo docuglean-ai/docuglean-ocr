@@ -18,6 +18,7 @@ dependencies = [
     "mistralai>=0.0.10",
     "pydantic>=2.0.0",
     "transformers>=4.0.0",
+    "pymupdf>=1.26.4",
 ]
 
 [project.optional-dependencies]
