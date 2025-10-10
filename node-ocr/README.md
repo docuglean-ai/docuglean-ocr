@@ -169,9 +169,23 @@ const documentInfo = await extract({
   prompt: 'Extract document metadata and summary'
 });
 
-// Access parsed fields directly:
-console.log('Receipt total:', geminiReceipt.total);
+// Summarization via extract
+const SummarySchema = z.object({
+  title: z.string().optional(),
+  summary: z.string(),
+  keyPoints: z.array(z.string()),
+});
+const summary = await extract({
+  filePath: './long-report.pdf',
+  provider: 'openai',
+  apiKey: 'your-api-key',
+  responseFormat: SummarySchema,
+  prompt: 'Provide a concise 3-sentence summary of the document.'
+});
+console.log('Summary:', summary.summary);
 ```
+
+Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
 
 Check out our [test folder](./test) for more comprehensive examples and use cases, including:
 - Receipt parsing

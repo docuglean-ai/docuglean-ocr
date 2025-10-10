@@ -83,7 +83,24 @@ receipt = await extract(
     response_format=Receipt,
     prompt="Extract receipt information including date, total, and all items"
 )
+
+# Summarization via extract
+class Summary(BaseModel):
+    title: str | None = None
+    summary: str
+    keyPoints: List[str]
+
+summary = await extract(
+    file_path="./long-report.pdf",
+    provider="openai",
+    api_key="your-api-key",
+    response_format=Summary,
+    prompt="Provide a concise 3-sentence summary of this document and 3–7 key points."
+)
+print("Summary:", summary.summary)
 ```
+
+Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
 
 ## Development
 

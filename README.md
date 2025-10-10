@@ -17,6 +17,7 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, and Google Gemini, with more coming soon
 - 🔒 **Type Safety**: Full TypeScript support with comprehensive types
+- **summarize**: Get structured TLDRs of long documents
 
 ## Available SDKs
 
@@ -47,7 +48,7 @@ const ocrResult = await ocr({
 ```
 
 **Extract Function - Structured Data Extraction**
-Extracts structured data from documents using custom schemas. Requires a response format schema and returns parsed data.
+Extracts structured data from documents using custom schemas. Also handles summarization via custom prompts and a compact schema. 
 
 ```typescript
 import { z } from 'zod';
@@ -71,7 +72,23 @@ const extractResult = await extract({
   responseFormat: ReceiptSchema,
   prompt: 'Extract receipt details including date, total, and items'
 });
+// Summarization via extract
+const SummarySchema = z.object({
+  title: z.string().optional(),
+  summary: z.string().min(50),
+  keyPoints: z.array(z.string()).min(3).max(7),
+});
+const summary = await extract({
+  filePath: './long-report.pdf',
+  provider: 'openai',
+  apiKey: 'your-api-key',
+  responseFormat: SummarySchema,
+  prompt: 'Provide a concise 3-sentence summary of this document and 3–7 key points.'
+});
+console.log('Summary:', summary.summary);
 ```
+
+Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
 
 ### 🐍 Python SDK
 **Package:** `docuglean-ocr`
@@ -129,10 +146,8 @@ extract_result = await extract(
 
 ## Coming Soon
 
-- [ ] 📝 **summarize()**: TLDRs of long documents
 - [ ] 🌐 **translate()**: Support for multilingual documents
 - [ ] 🏷️ **classify()**: Document type classifier (receipt, ID, invoice, etc.)
-- [ ] 🔍 **search(query)**: LLM-powered search across documents
 - [ ] 🤖 **More Models. More Providers**: Integration with Meta's Llama, Together AI, OpenRouter and lots more.
 - [ ] 🌍 **Multilingual**: Support for multiple languages
 - [ ] 🎯 **Smart Classification**: Automatic document type detection
