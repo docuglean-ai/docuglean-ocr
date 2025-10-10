@@ -57,6 +57,20 @@ async def test_mistral_local_image():
 
 
 @pytest.mark.asyncio
+async def test_local_pdf_parsing():
+    """Test local OCR (PyMuPDF) with local PDF."""
+    result = await ocr(OCRConfig(
+        file_path="./tests/data/receipt.pdf",
+        provider="local",
+        apiKey="local"
+    ))
+    assert hasattr(result, 'text')
+    assert isinstance(result.text, str)
+    assert len(result.text) > 0
+    print(f"Local OCR text: {result.text[:200]}...")
+
+
+@pytest.mark.asyncio
 async def test_mistral_local_pdf():
     """Test Mistral OCR with local PDF."""
     config = OCRConfig(

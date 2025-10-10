@@ -1,6 +1,6 @@
 import { ocr } from '../src';
 import { handleMistralOCRResponse } from '../src/utils';
-import { MistralOCRResponse, OpenAIOCRResponse, GeminiOCRResponse } from '../src/types';
+import { MistralOCRResponse, OpenAIOCRResponse, GeminiOCRResponse, LocalOCRResponse } from '../src/types';
 
 // 1. Mistral URL Image Test
 async function testMistralUrlImage() {
@@ -212,6 +212,15 @@ export async function runOCRTests() {
     // Gemini Tests
     await testGeminiUrlImage();
     await testGeminiLocalImage();
+
+    // Local parsing test (PDF only)
+    const localResp = await ocr({
+      filePath: './test/data/receipt.pdf',
+      provider: 'local',
+      apiKey: 'local'
+    });
+    const local = localResp as LocalOCRResponse;
+    console.log('Local OCR Result (first 200 chars):', local.text.substring(0, 200) + '...');
   } catch (error) {
     console.error('OCR Tests failed:', error);
     throw error;

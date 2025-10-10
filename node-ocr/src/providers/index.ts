@@ -1,6 +1,7 @@
 import { processOCRMistral } from './mistral';
 import { processOCROpenAI } from './openai';
 import { processOCRGemini } from './gemini';
+import { processOCRLocal } from './local';
 
 export const providers = {
   openai: {
@@ -19,4 +20,6 @@ export const providers = {
 
 
 export { processOCRMistral, processOCROpenAI, processOCRGemini };
+
+export { processOCRLocal };
 

@@ -62,6 +62,14 @@ const mistralResult = await ocr({
   model: 'mistral-ocr-latest',
   apiKey: 'your-api-key'
 });
+
+// Local OCR (no API, PDFs only) using pdf2json
+const localResult = await ocr({
+  filePath: './document.pdf',
+  provider: 'local',
+  apiKey: 'local'
+});
+console.log('Local text:', (localResult as any).text.substring(0, 200) + '...');
 ```
 
 ### Extract Function - Document Analysis & Information Extraction

@@ -18,6 +18,7 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, and Google Gemini, with more coming soon
 - 🔒 **Type Safety**: Full TypeScript support with comprehensive types
 - **summarize**: Get structured TLDRs of long documents
+ - **local OCR (PDF)**: Parse PDFs locally without calling external APIs.
 
 ## Available SDKs
 
@@ -145,8 +146,6 @@ extract_result = await extract(
 ```
 
 ## Coming Soon
-
-- [ ] 🌐 **translate()**: Support for multilingual documents
 - [ ] 🏷️ **classify()**: Document type classifier (receipt, ID, invoice, etc.)
 - [ ] 🤖 **More Models. More Providers**: Integration with Meta's Llama, Together AI, OpenRouter and lots more.
 - [ ] 🌍 **Multilingual**: Support for multiple languages

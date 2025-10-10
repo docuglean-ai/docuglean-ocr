@@ -7,6 +7,7 @@ from .providers.gemini import process_ocr_gemini
 from .providers.huggingface import process_ocr_huggingface
 from .providers.mistral import process_ocr_mistral
 from .providers.openai import process_ocr_openai
+from .providers.local import process_ocr_local, LocalOCRResponse
 from .types import (
     GeminiOCRResponse,
     HuggingFaceOCRResponse,
@@ -17,7 +18,7 @@ from .types import (
 )
 
 
-async def ocr(config: OCRConfig) -> MistralOCRResponse | OpenAIOCRResponse | HuggingFaceOCRResponse | GeminiOCRResponse:
+async def ocr(config: OCRConfig) -> MistralOCRResponse | OpenAIOCRResponse | HuggingFaceOCRResponse | GeminiOCRResponse | LocalOCRResponse:
     """
     Processes a document using OCR with specified provider.
 
@@ -46,5 +47,7 @@ async def ocr(config: OCRConfig) -> MistralOCRResponse | OpenAIOCRResponse | Hug
         return await process_ocr_huggingface(config)
     elif provider == "gemini":
         return await process_ocr_gemini(config)
+    elif provider == "local":
+        return await process_ocr_local(config.file_path)
     else:
         raise Exception(f"Provider {provider} not supported yet")
