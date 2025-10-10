@@ -36,32 +36,64 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 ### Installation
 
 ```bash
-npm i docuglean
+npm i docuglean-ocr
 ```
 
 ## Features in Detail
 
-### OCR Processing
+### OCR Function - Pure OCR Processing
+Extracts text from documents and images. Returns text content with basic metadata (varies by provider).
 
 ```typescript
-import { ocr } from 'docuglean';
+import { ocr, extract } from 'docuglean-ocr';
 
-// Mistral OCR
-const result = await ocr({
+// Extract raw text from documents (supports URLs and local files)
+const ocrResult = await ocr({
+  filePath: 'https://arxiv.org/pdf/2302.12854',
+  provider: 'openai',
+  model: 'gpt-4o-mini',
+  apiKey: 'your-api-key'
+});
+
+// Mistral OCR with local file
+const mistralResult = await ocr({
   filePath: './document.pdf',
   provider: 'mistral',
   model: 'mistral-ocr-latest',
   apiKey: 'your-api-key'
 });
+```
 
-// Google Gemini OCR
-const geminiResult = await ocr({
-  filePath: './document.pdf',
-  provider: 'gemini',
-  model: 'gemini-2.5-flash',
-  apiKey: 'your-gemini-api-key',
-  prompt: 'Extract all text from this document'
+### Extract Function - Document Analysis & Information Extraction
+Structured extraction for analyzing document content and extracting specific information based on custom prompts.
+
+```typescript
+import { z } from 'zod';
+
+// Define schema for structured extraction
+const ReceiptSchema = z.object({
+  date: z.string(),
+  total: z.number(),
+  items: z.array(z.object({
+    name: z.string(),
+    price: z.number()
+  }))
 });
+
+// Extract structured data from documents
+const extractResult = await extract({
+  filePath: './receipt.pdf',
+  provider: 'openai',
+  model: 'gpt-4o-mini',
+  apiKey: 'your-api-key',
+  responseFormat: ReceiptSchema,
+  prompt: 'Extract receipt details including date, total, and items'
+});
+
+// You can now access fields directly:
+console.log('Date:', extractResult.date);
+console.log('Total:', extractResult.total);
+console.log('First item name:', extractResult.items[0]?.name);
 ```
 
 ### Provider Options
@@ -110,47 +142,35 @@ interface ExtractConfig {
 }
 ```
 
-### Basic Structured Output Usage
+### Additional Examples
 
 ```typescript
-import { extract } from 'docuglean';
-import { z } from 'zod';
-
-// Define your schema (for structured extraction)
-const Receipt = z.object({
-  date: z.string(),
-  total: z.number(),
-  items: z.array(z.object({
-    name: z.string(),
-    price: z.number()
-  }))
-});
-
-// Unstructured extraction
-const text = await extract({
-  filePath: './document.pdf',
-  provider: 'mistral',
-  apiKey: 'your-api-key',
-  prompt: 'Summarize this document'
-});
-
-// Structured extraction with OpenAI
-const receipt = await extract({
-  filePath: './receipt.pdf',
-  provider: 'openai',
-  apiKey: 'your-api-key',
-  responseFormat: Receipt,
-  prompt: 'Extract receipt information'
-});
-
 // Structured extraction with Gemini
 const geminiReceipt = await extract({
   filePath: './receipt.pdf',
   provider: 'gemini',
   apiKey: 'your-gemini-api-key',
-  responseFormat: Receipt,
+  responseFormat: ReceiptSchema,
   prompt: 'Extract receipt information including date, total, and all items'
 });
+
+// Structured extraction with different schema
+const DocumentSchema = z.object({
+  title: z.string(),
+  authors: z.array(z.string()),
+  summary: z.string()
+});
+
+const documentInfo = await extract({
+  filePath: './research-paper.pdf',
+  provider: 'openai',
+  apiKey: 'your-api-key',
+  responseFormat: DocumentSchema,
+  prompt: 'Extract document metadata and summary'
+});
+
+// Access parsed fields directly:
+console.log('Receipt total:', geminiReceipt.total);
 ```
 
 Check out our [test folder](./test) for more comprehensive examples and use cases, including:

@@ -110,7 +110,7 @@ export async function processOCROpenAI(config: OCRConfig): Promise<OpenAIOCRResp
   }
 }
 
-export async function processDocExtractionOpenAI(config: ExtractConfig): Promise<string | StructuredExtractionResult<BaseStructuredOutput>> {
+export async function processDocExtractionOpenAI(config: ExtractConfig): Promise<BaseStructuredOutput> {
   const client = new OpenAI({ apiKey: config.apiKey });
 
   try {
@@ -135,45 +135,22 @@ export async function processDocExtractionOpenAI(config: ExtractConfig): Promise
       }
     ];
 
-    if (config.responseFormat) {
-      const response = await client.beta.chat.completions.parse({
-        model: config.model || 'gpt-4.1-mini',
-        messages: [
-          ...(config.systemPrompt ? [{
-            role: 'system' as const,
-            content: config.systemPrompt
-          }] : []),
-          {
-            role: 'user' as const,
-            content: fileContent as OpenAI.ChatCompletionContentPart[]
-          }
-        ],
-        response_format: zodResponseFormat(config.responseFormat, 'extracted_data')
-      });
+    const response = await client.beta.chat.completions.parse({
+      model: config.model || 'gpt-4.1-mini',
+      messages: [
+        ...(config.systemPrompt ? [{
+          role: 'system' as const,
+          content: config.systemPrompt
+        }] : []),
+        {
+          role: 'user' as const,
+          content: fileContent as OpenAI.ChatCompletionContentPart[]
+        }
+      ],
+      response_format: zodResponseFormat(config.responseFormat, 'extracted_data')
+    });
 
-      return response.choices[0].message.parsed;
-    } else {
-      const response = await client.chat.completions.create({
-        model: config.model || 'gpt-4.1-mini',
-        messages: [
-          ...(config.systemPrompt ? [{
-            role: 'system' as const,
-            content: config.systemPrompt
-          }] : []),
-          {
-            role: 'user' as const,
-            content: fileContent as OpenAI.ChatCompletionContentPart[]
-          }
-        ]
-      });
-
-      const responseText = response.choices[0].message.content;
-      if (!responseText) {
-        throw new Error('No valid response from OpenAI document extraction');
-      }
-
-      return responseText;
-    }
+    return response.choices[0].message.parsed;
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`OpenAI document extraction failed: ${error.message}`);

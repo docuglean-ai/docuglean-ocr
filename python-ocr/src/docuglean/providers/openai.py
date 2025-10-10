@@ -89,7 +89,7 @@ async def process_ocr_openai(config: OCRConfig) -> OpenAIOCRResponse:
         raise Exception("OpenAI OCR failed: Unknown error")
 
 
-async def process_doc_extraction_openai(config: ExtractConfig) -> str | StructuredExtractionResult:
+async def process_doc_extraction_openai(config: ExtractConfig) -> StructuredExtractionResult:
     """
     Process document extraction using OpenAI.
 
@@ -160,33 +160,20 @@ async def process_doc_extraction_openai(config: ExtractConfig) -> str | Structur
             "content": content
         })
 
-        # Check if structured output is requested
-        if config.response_format:
-            # Use structured output with Pydantic schema
-            response = client.responses.parse(
-                model=config.model or "gpt-4o-2024-08-06",
-                input=input_messages,
-                text_format=config.response_format
-            )
+        # Use structured output with Pydantic schema
+        response = client.responses.parse(
+            model=config.model or "gpt-4o-mini",
+            input=input_messages,
+            text_format=config.response_format
+        )
 
-            if not response:
-                raise Exception("No response from OpenAI document extraction")
+        if not response:
+            raise Exception("No response from OpenAI document extraction")
 
-            return StructuredExtractionResult(
-                raw=str(response.output_parsed),  # Convert parsed object to string
-                parsed=response.output_parsed
-            )
-        else:
-            # Regular unstructured output
-            response = client.responses.create(
-                model=config.model or "gpt-4.1",
-                input=input_messages
-            )
-
-            if not response or not response.output_text:
-                raise Exception("No response from OpenAI document extraction")
-
-            return response.output_text
+        return StructuredExtractionResult(
+            raw=str(response.output_parsed),  # Convert parsed object to string
+            parsed=response.output_parsed
+        )
 
     except Exception as error:
         if isinstance(error, Exception):

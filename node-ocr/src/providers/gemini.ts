@@ -102,7 +102,7 @@ export async function processOCRGemini(config: OCRConfig): Promise<GeminiOCRResp
   }
 }
 
-export async function processDocExtractionGemini(config: ExtractConfig): Promise<string | StructuredExtractionResult<BaseStructuredOutput>> {
+export async function processDocExtractionGemini(config: ExtractConfig): Promise<StructuredExtractionResult<BaseStructuredOutput>> {
   const ai = new GoogleGenAI({ apiKey: config.apiKey });
 
   try {
@@ -179,46 +179,30 @@ export async function processDocExtractionGemini(config: ExtractConfig): Promise
         throw new Error(`Unsupported file type: ${path.extname(config.filePath)}`);
     }
 
-    // Check if structured output is requested
-    if (config.responseFormat) {
-      // For structured output, we need to use the schema in the config
-      const structuredConfig = {
-        responseMimeType: "application/json",
-        responseSchema: config.responseFormat
+    // For structured output, we need to use the schema in the config
+    const structuredConfig = {
+      responseMimeType: "application/json",
+      responseSchema: config.responseFormat
+    };
+
+    const response = await ai.models.generateContent({
+      model: config.model || "gemini-2.5-flash",
+      contents: contents,
+      config: structuredConfig
+    });
+
+    if (!response.text) {
+      throw new Error('No response from Gemini document extraction');
+    }
+
+    try {
+      const parsed = JSON.parse(response.text);
+      return {
+        raw: response.text,
+        parsed: parsed
       };
-
-      const response = await ai.models.generateContent({
-        model: config.model || "gemini-2.5-flash",
-        contents: contents,
-        config: structuredConfig
-      });
-
-      if (!response.text) {
-        throw new Error('No response from Gemini document extraction');
-      }
-
-      try {
-        const parsed = JSON.parse(response.text);
-        return {
-          raw: response.text,
-          parsed: parsed
-        };
-      } catch (parseError) {
-        // If JSON parsing fails, return as raw text
-        return response.text;
-      }
-    } else {
-      // Regular unstructured output
-      const response = await ai.models.generateContent({
-        model: config.model || "gemini-2.5-flash",
-        contents: contents
-      });
-
-      if (!response.text) {
-        throw new Error('No response from Gemini document extraction');
-      }
-
-      return response.text;
+    } catch (parseError) {
+      throw new Error(`Failed to parse structured response from Gemini: ${parseError}`);
     }
   } catch (error) {
     if (error instanceof Error) {

@@ -13,7 +13,7 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 ## Features
 - 🚀 **Easy to Use**: Simple, intuitive API with detailed documentation. Just pass in a file and get markdown in response.
 - 🔍 **OCR Capabilities**: Extract text from images and scanned documents
-- 📊 **Structured Data Extraction**: Use Zod schemas for type-safe data extraction
+- 📊 **Structured Data Extraction**: Use Zod/Pydantic schemas for type-safe structured data extraction
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, and Google Gemini, with more coming soon
 - 🔒 **Type Safety**: Full TypeScript support with comprehensive types
@@ -30,14 +30,46 @@ npm install docuglean-ocr
 **Repository:** [node-ocr/](./node-ocr/)
 
 **Quick Start:**
+
+**OCR Function - Pure OCR Processing**
+Extracts text from documents and images, returning content and metadata like bounding boxes (provider-dependent).
+
 ```typescript
 import { ocr, extract } from 'docuglean-ocr';
 
-const result = await ocr({
-  filePath: './document.pdf',
-  provider: 'mistral',
-  model: 'mistral-ocr-latest',
+// Extract raw text from documents (supports URLs and local files)
+const ocrResult = await ocr({
+  filePath: 'https://arxiv.org/pdf/2302.12854',
+  provider: 'openai',
+  model: 'gpt-4o-mini',
   apiKey: 'your-api-key'
+});
+```
+
+**Extract Function - Structured Data Extraction**
+Extracts structured data from documents using custom schemas. Requires a response format schema and returns parsed data.
+
+```typescript
+import { z } from 'zod';
+
+// Define schema for structured extraction
+const ReceiptSchema = z.object({
+  date: z.string(),
+  total: z.number(),
+  items: z.array(z.object({
+    name: z.string(),
+    price: z.number()
+  }))
+});
+
+// Extract structured data from documents
+const extractResult = await extract({
+  filePath: './receipt.pdf',
+  provider: 'mistral',
+  model: 'mistral-small-latest',
+  apiKey: 'your-api-key',
+  responseFormat: ReceiptSchema,
+  prompt: 'Extract receipt details including date, total, and items'
 });
 ```
 
@@ -51,14 +83,47 @@ pip install docuglean-ocr
 **Repository:** [python-ocr/](./python-ocr/)
 
 **Quick Start:**
+
+**OCR Function - Pure OCR Processing**
+Extracts text from documents and images, returning content and metadata like bounding boxes (provider-dependent).
+
 ```python
 from docuglean import ocr, extract
 
-result = await ocr(
-    file_path="./document.pdf",
-    provider="mistral",
-    model="mistral-ocr-latest",
+# Extract raw text from documents (supports URLs and local files)
+ocr_result = await ocr(
+    file_path="./test/data/testocr.png",
+    provider="gemini",
+    model="gemini-2.5-flash",
     api_key="your-api-key"
+)
+```
+
+**Extract Function - Structured Data Extraction**
+Extracts structured data from documents using custom schemas. Requires a response format schema and returns parsed data.
+
+```python
+from pydantic import BaseModel
+from typing import List
+
+# Define schema for structured extraction
+class Item(BaseModel):
+    name: str
+    price: float
+
+class Receipt(BaseModel):
+    date: str
+    total: float
+    items: List[Item]
+
+# Extract structured data from documents
+extract_result = await extract(
+    file_path="./receipt.pdf",
+    provider="mistral",
+    model="mistral-small-latest",
+    api_key="your-api-key",
+    response_format=Receipt,
+    prompt="Extract receipt details including date, total, and items"
 )
 ```
 

@@ -10,15 +10,15 @@ from .providers.openai import process_doc_extraction_openai
 from .types import ExtractConfig, StructuredExtractionResult, validate_config
 
 
-async def extract(config: ExtractConfig) -> str | StructuredExtractionResult:
+async def extract(config: ExtractConfig) -> StructuredExtractionResult:
     """
-    Extracts structured or unstructured information from a document using specified provider.
+    Extracts structured information from a document using specified provider.
 
     Args:
-        config: Extraction configuration including provider, file path, and API key
+        config: Extraction configuration including provider, file path, API key, and response format schema
 
     Returns:
-        Extracted information either as string or structured data
+        Structured data according to the provided schema
 
     Raises:
         ValueError: If configuration is invalid
