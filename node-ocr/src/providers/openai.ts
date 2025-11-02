@@ -110,7 +110,7 @@ export async function processOCROpenAI(config: OCRConfig): Promise<OpenAIOCRResp
   }
 }
 
-export async function processDocExtractionOpenAI(config: ExtractConfig): Promise<BaseStructuredOutput> {
+export async function processDocExtractionOpenAI(config: ExtractConfig): Promise<StructuredExtractionResult<BaseStructuredOutput>> {
   const client = new OpenAI({ apiKey: config.apiKey });
 
   try {
@@ -150,7 +150,11 @@ export async function processDocExtractionOpenAI(config: ExtractConfig): Promise
       response_format: zodResponseFormat(config.responseFormat, 'extracted_data')
     });
 
-    return response.choices[0].message.parsed;
+    const parsed = response.choices[0].message.parsed as BaseStructuredOutput;
+    return {
+      raw: JSON.stringify(response.choices[0].message.content),
+      parsed,
+    };
   } catch (error) {
     if (error instanceof Error) {
       throw new Error(`OpenAI document extraction failed: ${error.message}`);

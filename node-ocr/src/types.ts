@@ -1,4 +1,5 @@
 import { z } from 'zod';
+
 export type Provider = 'openai' | 'mistral' | 'gemini' | 'local';
 
 export const validateConfig = (config: OCRConfig | ExtractConfig) => {

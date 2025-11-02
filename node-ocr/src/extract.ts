@@ -1,31 +1,44 @@
-import { ExtractConfig, BaseStructuredOutput, StructuredExtractionResult, validateConfig } from './types';
+import { ExtractConfig, BaseStructuredOutput, validateConfig } from './types';
 import { processDocExtractionMistral } from './providers/mistral';
 import { processDocExtractionOpenAI } from './providers/openai';
 import { processDocExtractionGemini } from './providers/gemini';
+import { parseDocumentLocal } from './providers/local';
 
 /**
- * Extracts structured information from a document using specified provider
+ * Extracts structured information from a document using AI providers or local parsing
  * @param config Extraction configuration including provider, file path, API key, and response format schema
  * @returns Structured data according to the provided schema
  */
 export async function extract<T extends BaseStructuredOutput>(config: ExtractConfig): Promise<T> {
-  // Default to mistral if no provider specified
   const provider = config.provider || 'mistral';
 
-  // Validate configuration
-  validateConfig(config);
+  // Local provider doesn't need API key validation
+  if (provider !== 'local') {
+    validateConfig(config);
+  }
 
-  // Route to correct provider
   switch (provider) {
-    case 'mistral':
-      const mistralResult = await processDocExtractionMistral(config);
-      return mistralResult.parsed as T;
-    case 'openai':
-      return await processDocExtractionOpenAI(config) as T;
-    case 'gemini':
-      const geminiResult = await processDocExtractionGemini(config);
-      return geminiResult.parsed as T;
+    case 'mistral': {
+      const result = await processDocExtractionMistral(config);
+      return result.parsed as T;
+    }
+    
+    case 'openai': {
+      const result = await processDocExtractionOpenAI(config);
+      return result.parsed as T;
+    }
+    
+    case 'gemini': {
+      const result = await processDocExtractionGemini(config);
+      return result.parsed as T;
+    }
+    
+    case 'local': {
+      const result = await parseDocumentLocal(config.filePath);
+      return result as unknown as T;
+    }
+    
     default:
-      throw new Error(`Provider ${provider} not supported yet`);
+      throw new Error(`Provider ${provider} not supported: ${provider}`);
   }
 }

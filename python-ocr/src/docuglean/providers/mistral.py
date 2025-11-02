@@ -156,7 +156,7 @@ async def process_doc_extraction_mistral(config: ExtractConfig) -> StructuredExt
             parsed_data = json.loads(response.choices[0].message.content)
             return StructuredExtractionResult(
                 raw=response.choices[0].message.content,
-                parsed=parsed_data
+                parsed=parsed_data,
             )
         except json.JSONDecodeError as e:
             raise Exception(f"Failed to parse structured response from Mistral: {e}")

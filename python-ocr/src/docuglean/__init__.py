@@ -16,4 +16,32 @@ from .types import (
     Provider,
 )
 
-__all__ = ["ExtractConfig", "GeminiOCRResponse", "HuggingFaceOCRResponse", "MistralOCRResponse", "OCRConfig", "OpenAIOCRResponse", "Provider", "__version__", "extract", "ocr"]
+# Export document parser utilities
+from .parsers import (
+    parse_docx,
+    parse_pptx,
+    parse_spreadsheet,
+    parse_pdf,
+    parse_csv,
+)
+from .providers.local import parse_document_local
+
+__all__ = [
+    "ExtractConfig",
+    "GeminiOCRResponse",
+    "HuggingFaceOCRResponse",
+    "MistralOCRResponse",
+    "OCRConfig",
+    "OpenAIOCRResponse",
+    "Provider",
+    "__version__",
+    "extract",
+    "ocr",
+    # Parser utilities
+    "parse_docx",
+    "parse_pptx",
+    "parse_spreadsheet",
+    "parse_pdf",
+    "parse_csv",
+    "parse_document_local",
+]

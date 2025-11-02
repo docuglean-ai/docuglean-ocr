@@ -1,44 +1,69 @@
-import fs from 'fs';
 import path from 'path';
-import PDFParser from 'pdf2json';
-import { LocalOCRResponse, OCRConfig } from '../types';
+import { parseDocx } from '../parsers/docx';
+import { parsePptx } from '../parsers/pptx';
+import { parseSpreadsheet } from '../parsers/spreadsheet';
+import { parseOdt } from '../parsers/odt';
+import { parseOdp } from '../parsers/odp';
+import { parseOds } from '../parsers/ods';
+import { parseCsv } from '../parsers/csv';
+import { parsePdf } from '../parsers/pdf';
+import { OCRConfig, LocalOCRResponse } from '../types';
+
+export async function parseDocumentLocal(filePath: string) {
+  if (!filePath) return { text: '' };
+
+  const ext = path.extname(filePath).toLowerCase();
+
+  switch (ext) {
+    case '.doc':
+    case '.docx':
+      return parseDocx(filePath);
+    
+    case '.ppt':
+    case '.pptx':
+      return parsePptx(filePath);
+    
+    case '.xlsx':
+    case '.xls':
+      return parseSpreadsheet(filePath);
+    
+    case '.odt':
+      return parseOdt(filePath);
+    
+    case '.odp':
+      return parseOdp(filePath);
+    
+    case '.ods':
+      return parseOds(filePath);
+    
+    case '.csv':
+    case '.tsv':
+      return parseCsv(filePath);
+    
+    case '.pdf':
+      return parsePdf(filePath);
+    
+    default:
+      throw new Error(`Unsupported file format: ${ext}`);
+  }
+}
 
 export async function processOCRLocal(config: OCRConfig): Promise<LocalOCRResponse> {
-  const ext = path.extname(config.filePath).toLowerCase();
-  if (ext !== '.pdf') {
-    throw new Error('Local OCR currently supports only local PDF files');
+  const result: any = await parseDocumentLocal(config.filePath);
+  
+  // Handle different return types from parsers
+  if (result.text) {
+    return { text: result.text };
   }
-  if (config.filePath.startsWith('http://') || config.filePath.startsWith('https://')) {
-    throw new Error('Local OCR requires a local file path');
+  if (result.rawText) {
+    return { text: result.rawText };
   }
-  await fs.promises.access(config.filePath, fs.constants.R_OK);
-
-  return new Promise<LocalOCRResponse>((resolve, reject) => {
-    const pdfParser = new (PDFParser as any)(/* cMap, cMapPack not required here */);
-
-    pdfParser.on('pdfParser_dataError', (errData: any) => reject(new Error(errData.parserError)));
-    pdfParser.on('pdfParser_dataReady', (pdfData: any) => {
-      try {
-        const pages = pdfData?.formImage?.Pages || [];
-        const texts: string[] = [];
-        for (const page of pages) {
-          for (const text of page.Texts || []) {
-            // Each Text contains an array of R (runs) with T (encoded text)
-            for (const run of text.R || []) {
-              const decoded = decodeURIComponent(run.T || '');
-              texts.push(decoded);
-            }
-          }
-          texts.push('\n');
-        }
-        resolve({ text: texts.join(' ') });
-      } catch (e: any) {
-        reject(new Error(`Failed to parse PDF: ${e.message || e}`));
-      }
-    });
-
-    pdfParser.loadPDF(config.filePath);
-  });
+  if (result.markdown) {
+    return { text: result.markdown };
+  }
+  
+  // Fallback: return empty string instead of stringified object
+  return { text: '' };
 }
 
 

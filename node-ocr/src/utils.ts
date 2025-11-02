@@ -3,6 +3,20 @@ import path from 'path';
 import { MistralOCRResponse, OCRResult } from './types';
 import { Mistral } from '@mistralai/mistralai';
 
+// Export document parsers as utilities
+export { 
+  parseDocx,
+  parsePptx, 
+  parseSpreadsheet,
+  parseOdt,
+  parseOdp,
+  parseOds,
+  parseCsv,
+  parsePdf,
+  pdfToImages
+} from './parsers/index';
+export { parseDocumentLocal } from './providers/local';
+
 export function isURL(filePath: string): boolean {
   return filePath.startsWith('http://') || filePath.startsWith('https://');
 }

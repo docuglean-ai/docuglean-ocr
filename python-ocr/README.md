@@ -10,6 +10,8 @@ A unified Python SDK for intelligent document processing using State of the Art 
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, Google Gemini, and Hugging Face
 - 🔒 **Type Safety**: Full Python type hints with Pydantic validation
+- 📦 **Permissive Licensing**: Uses pdftext (Apache/BSD) instead of PyMuPDF (AGPL) for commercial-friendly PDF processing
+- 📝 **Document Parsers**: Built-in local parsers for DOCX, PPTX, XLSX, CSV, TSV, and PDF (no API required)
 
 ## Installation
 
@@ -49,7 +51,7 @@ result = await ocr(
     prompt="Extract all text from this image"
 )
 
-# Local OCR (no API, PDFs only) using PyMuPDF
+# Local OCR (no API, PDFs only) using pdftext
 result = await ocr(
     file_path="./document.pdf",
     provider="local",
@@ -109,6 +111,63 @@ print("Summary:", summary.summary)
 ```
 
 Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
+
+## Document Parsers (Local - No API Required)
+
+Extract text from various document formats without any AI provider:
+
+```python
+from docuglean import (
+    parse_docx,
+    parse_pptx,
+    parse_spreadsheet,
+    parse_pdf,
+    parse_csv,
+    parse_document_local
+)
+
+# Parse DOCX files (returns HTML, Markdown, and raw text)
+result = await parse_docx("./document.docx")
+print(result["html"])      # HTML output
+print(result["markdown"])  # Markdown output
+print(result["raw_text"])  # Plain text
+print(result["text"])      # Same as markdown
+
+# Parse PPTX files
+result = await parse_pptx("./presentation.pptx")
+print(result["text"])
+
+# Parse spreadsheets (XLSX, XLS)
+result = await parse_spreadsheet("./data.xlsx")
+print(result["text"])
+
+# Parse CSV/TSV files
+result = await parse_csv("./data.csv")
+print(result["text"])
+print(result["rows"])      # List of row dictionaries
+print(result["columns"])   # List of column names
+
+# Parse PDF files
+result = await parse_pdf("./document.pdf")
+print(result["text"])
+
+# Auto-detect format and parse
+result = await parse_document_local("./document.docx")
+print(result["text"])
+```
+
+### Supported Document Formats
+
+- **Word Documents**: DOC, DOCX
+- **Presentations**: PPT, PPTX
+- **Spreadsheets**: XLSX, XLS
+- **Delimited Files**: CSV, TSV
+- **PDFs**: PDF
+
+All parsers return dictionaries with extracted content. The specific keys depend on the format:
+- DOCX: `html`, `markdown`, `raw_text`, `text`
+- PPTX/XLSX/PDF: `text`
+- CSV/TSV: `text`, `rows`, `columns`
 
 ## Development
 

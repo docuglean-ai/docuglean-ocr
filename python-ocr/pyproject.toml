@@ -18,7 +18,12 @@ dependencies = [
     "mistralai>=0.0.10",
     "pydantic>=2.0.0",
     "transformers>=4.0.0",
-    "pymupdf>=1.26.4",
+    "pdftext>=0.3.10",
+    "mammoth>=1.6.0",
+    "python-pptx>=0.6.23",
+    "openpyxl>=3.1.5",
+    "beautifulsoup4>=4.12.0",
+    "markdown>=3.6",
 ]
 
 [project.optional-dependencies]

@@ -172,7 +172,7 @@ async def process_doc_extraction_openai(config: ExtractConfig) -> StructuredExtr
 
         return StructuredExtractionResult(
             raw=str(response.output_parsed),  # Convert parsed object to string
-            parsed=response.output_parsed
+            parsed=response.output_parsed,
         )
 
     except Exception as error:

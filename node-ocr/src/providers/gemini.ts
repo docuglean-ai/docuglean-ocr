@@ -199,7 +199,7 @@ export async function processDocExtractionGemini(config: ExtractConfig): Promise
       const parsed = JSON.parse(response.text);
       return {
         raw: response.text,
-        parsed: parsed
+        parsed: parsed,
       };
     } catch (parseError) {
       throw new Error(`Failed to parse structured response from Gemini: ${parseError}`);

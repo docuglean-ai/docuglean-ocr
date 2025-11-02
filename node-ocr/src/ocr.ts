@@ -14,8 +14,10 @@ export async function ocr(config: OCRConfig): Promise<MistralOCRResponse | OpenA
   // Default to mistral if no provider specified
   const provider = config.provider || 'mistral';
 
-  // Validate configuration
-  validateConfig(config);
+  // Local provider doesn't need API key validation
+  if (provider !== 'local') {
+    validateConfig(config);
+  }
 
   // Route to correct provider
   switch (provider) {

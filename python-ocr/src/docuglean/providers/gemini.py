@@ -141,7 +141,7 @@ async def process_doc_extraction_gemini(config: ExtractConfig) -> StructuredExtr
             parsed_data = json.loads(response.text)
             return StructuredExtractionResult(
                 raw=response.text,
-                parsed=parsed_data
+                parsed=parsed_data,
             )
         except json.JSONDecodeError as e:
             raise Exception(f"Failed to parse structured response from Gemini: {e}")

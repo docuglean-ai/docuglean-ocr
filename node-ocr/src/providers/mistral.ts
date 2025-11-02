@@ -121,7 +121,7 @@ export async function processDocExtractionMistral(
 
     return {
       raw: response.choices[0].message.content as string, // raw output from Mistral
-      parsed: response.choices[0].message.parsed as BaseStructuredOutput // parsed output from Mistral
+      parsed: response.choices[0].message.parsed as BaseStructuredOutput,
     };
   } catch (error) {
     if (error instanceof Error) {

@@ -19,6 +19,7 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, and Google Gemini, with more coming soon
 - 🔒 **Type Safety**: Full TypeScript support with comprehensive types
+- 📝 **Document Parsers**: Local parsing for DOC, DOCX, PPTX, XLSX, XLS, ODS, ODT, ODP, CSV, TSV, and PDF files (no API required)
 
 
 ## Coming Soon
@@ -109,7 +110,38 @@ Currently supported providers and models:
 - OpenAI:  `gpt-4.1-mini`, `gpt-4.1`, `gpt-4o-mini`, `gpt-4o`, `o1-mini`, `o1`, `o3`, `o4-mini`
 - Mistral: `mistral-ocr-latest` for OCR. All currently available models except for codestral-mamba are supported for structured outputs.
 - Google Gemini: `gemini-2.5-flash`, `gemini-2.5-pro`, `gemini-1.5-flash`, `gemini-1.5-pro`
+- Local: No API required - supports DOC, DOCX, PPTX, XLSX, XLS, ODS, ODT, ODP, CSV, TSV, and PDF files
 - More coming soon: Together AI, OpenRouter, Anthropic etc
+
+### Document Parsers (Local - No API Required)
+
+Extract text from various document formats without any AI provider:
+
+```typescript
+import { parseDocumentLocal, parsePdf, parseDocx, parseCsv } from 'docuglean-ocr';
+
+// Parse any supported document format
+const result = await parseDocumentLocal('./document.pdf');
+console.log(result.text);
+
+// Or use specific parsers
+const pdf = await parsePdf('./document.pdf');           // PDF
+const docx = await parseDocx('./document.docx');        // DOCX (also supports DOC)
+const pptx = await parsePptx('./presentation.pptx');    // PowerPoint
+const xlsx = await parseSpreadsheet('./data.xlsx');     // Excel (XLSX, XLS)
+const csv = await parseCsv('./data.csv');               // CSV/TSV
+const odt = await parseOdt('./document.odt');           // OpenDocument Text
+const odp = await parseOdp('./presentation.odp');       // OpenDocument Presentation
+const ods = await parseOds('./spreadsheet.ods');        // OpenDocument Spreadsheet
+```
+
+**Supported Formats:**
+- **Word**: DOC, DOCX (via mammoth)
+- **PowerPoint**: PPTX (via officeparser)
+- **Excel**: XLSX, XLS, ODS (via officeparser)
+- **CSV/TSV**: CSV, TSV (via d3-dsv)
+- **OpenDocument**: ODT, ODP, ODS (via officeparser)
+- **PDF**: PDF (via pdf2json, or convert to images via pdf-poppler)
 
 ## Configuration
 
