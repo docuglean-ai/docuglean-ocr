@@ -34,6 +34,7 @@
   ],
   "devDependencies": {
     "@types/d3-dsv": "^3.0.6",
+    "@types/jest": "^30.0.0",
     "@types/markdown-it": "^13.0.7",
     "@types/node": "^22.9.0",
     "tsx": "^4.19.2",

@@ -6,6 +6,7 @@ __version__ = "1.0.0"
 
 from .extract import extract
 from .ocr import ocr
+from .batch import batch_ocr, batch_extract, BatchOCRResult, BatchExtractResult
 from .types import (
     ExtractConfig,
     GeminiOCRResponse,
@@ -37,6 +38,10 @@ __all__ = [
     "__version__",
     "extract",
     "ocr",
+    "batch_ocr",
+    "batch_extract",
+    "BatchOCRResult",
+    "BatchExtractResult",
     # Parser utilities
     "parse_docx",
     "parse_pptx",

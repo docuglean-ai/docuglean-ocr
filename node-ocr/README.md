@@ -105,6 +105,76 @@ console.log('Total:', extractResult.total);
 console.log('First item name:', extractResult.items[0]?.name);
 ```
 
+### Batch Processing - Process Multiple Documents Concurrently
+Process multiple documents concurrently with automatic error handling for maximum speed.
+
+```typescript
+import { batchOcr, batchExtract } from 'docuglean-ocr';
+import { z } from 'zod';
+
+// Batch OCR - Process multiple files
+const ocrResults = await batchOcr([
+  {
+    filePath: './invoice1.pdf',
+    provider: 'openai',
+    apiKey: 'your-api-key',
+    model: 'gpt-4o-mini'
+  },
+  {
+    filePath: './invoice2.pdf',
+    provider: 'mistral',
+    apiKey: 'your-api-key',
+    model: 'pixtral-12b-2409'
+  },
+  {
+    filePath: './receipt.png',
+    provider: 'local',
+    apiKey: 'not-needed'
+  }
+]);
+
+// Handle results - errors don't stop processing
+ocrResults.forEach((result, index) => {
+  if (result.success) {
+    console.log(`File ${index + 1} processed:`, result.result);
+  } else {
+    console.error(`File ${index + 1} failed:`, result.error);
+  }
+});
+
+// Batch Extract - Extract structured data from multiple files
+const InvoiceSchema = z.object({
+  invoice_number: z.string(),
+  vendor: z.string(),
+  total: z.number()
+});
+
+const extractResults = await batchExtract([
+  {
+    filePath: './invoice1.pdf',
+    provider: 'openai',
+    apiKey: 'your-api-key',
+    responseFormat: InvoiceSchema
+  },
+  {
+    filePath: './invoice2.pdf',
+    provider: 'openai',
+    apiKey: 'your-api-key',
+    responseFormat: InvoiceSchema
+  }
+]);
+
+// Get successful extractions
+const successful = extractResults.filter(r => r.success);
+console.log(`Processed ${successful.length}/${extractResults.length} files`);
+```
+
+**Key Features:**
+- ✅ Automatic error handling
+- ✅ Results returned in same order as input
+- ✅ Mix different providers in single batch
+- ✅ Simple success/failure status for each file
+
 ### Provider Options
 Currently supported providers and models:
 - OpenAI:  `gpt-4.1-mini`, `gpt-4.1`, `gpt-4o-mini`, `gpt-4o`, `o1-mini`, `o1`, `o3`, `o4-mini`

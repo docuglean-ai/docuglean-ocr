@@ -112,6 +112,75 @@ print("Summary:", summary.summary)
 
 Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
 
+### Batch Processing - Process Multiple Documents Concurrently
+
+Process multiple documents concurrently with automatic error handling for maximum speed.
+
+```python
+from docuglean import batch_ocr, batch_extract
+from docuglean.types import OCRConfig, ExtractConfig
+from pydantic import BaseModel
+
+# Batch OCR - Process multiple files
+results = await batch_ocr([
+    OCRConfig(
+        file_path="./invoice1.pdf",
+        provider="openai",
+        api_key="your-api-key",
+        model="gpt-4o-mini"
+    ),
+    OCRConfig(
+        file_path="./invoice2.pdf",
+        provider="mistral",
+        api_key="your-api-key",
+        model="pixtral-12b-2409"
+    ),
+    OCRConfig(
+        file_path="./receipt.png",
+        provider="local",
+        api_key="not-needed"
+    )
+])
+
+# Handle results - errors don't stop processing
+for i, result in enumerate(results):
+    if result["success"]:
+        print(f"File {i + 1} processed:", result["result"])
+    else:
+        print(f"File {i + 1} failed:", result["error"])
+
+# Batch Extract - Extract structured data from multiple files
+class Invoice(BaseModel):
+    invoice_number: str
+    vendor: str
+    total: float
+
+extract_results = await batch_extract([
+    ExtractConfig(
+        file_path="./invoice1.pdf",
+        provider="openai",
+        api_key="your-api-key",
+        response_format=Invoice
+    ),
+    ExtractConfig(
+        file_path="./invoice2.pdf",
+        provider="openai",
+        api_key="your-api-key",
+        response_format=Invoice
+    )
+])
+
+# Get successful extractions
+successful = [r for r in extract_results if r["success"]]
+print(f"Processed {len(successful)}/{len(extract_results)} files")
+```
+
+**Key Features:**
+- ✅ Automatic error handling - one failure doesn't stop the batch
+- ✅ Results returned in same order as input
+- ✅ Mix different providers in single batch
+- ✅ Simple success/failure status for each file
+
 ## Document Parsers (Local - No API Required)
 
 Extract text from various document formats without any AI provider:
