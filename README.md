@@ -17,7 +17,6 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, and Google Gemini, with more coming soon
 - 🔒 **Type Safety**: Full TypeScript support with comprehensive types
-- 📦 **Commercial-Friendly**: Uses permissively licensed libraries (Apache/BSD) for PDF processing
 - **summarize**: Get structured TLDRs of long documents
 - **local OCR (PDF)**: Parse PDFs locally without calling external APIs with bounding box support
 
