@@ -147,3 +147,46 @@ class OCRResult(BaseModel):
     markdown: str
     images: list[Any]
     raw_response: MistralOCRResponse = Field(alias="rawResponse")
+
+
+# Classification types
+class CategoryDescription(BaseModel):
+    """Description of a category for document classification."""
+    name: str
+    description: str
+    partition_key: str | None = Field(alias="partitionKey", default=None)
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class ClassifyConfig(BaseModel):
+    """Classification configuration."""
+    file_path: str = Field(alias="filePath")
+    api_key: str = Field(alias="apiKey")
+    provider: Provider | None = None
+    model: str | None = None
+    categories: list[CategoryDescription]
+    chunk_size: int | None = Field(alias="chunkSize", default=75)  # Pages per chunk
+    max_concurrent: int | None = Field(alias="maxConcurrent", default=5)  # Max parallel requests
+
+    model_config = ConfigDict(populate_by_name=True)
+
+
+class Partition(BaseModel):
+    """Partition within a split category."""
+    name: str
+    pages: list[int]
+    conf: Literal["low", "high"]
+
+
+class Split(BaseModel):
+    """Split result for a category."""
+    name: str
+    pages: list[int]
+    conf: Literal["low", "high"]
+    partitions: list[Partition] | None = None
+
+
+class ClassifyResult(BaseModel):
+    """Result of document classification."""
+    splits: list[Split]

@@ -116,4 +116,34 @@ export async function getSignedMistralUrl(filePath: string, apiKey: string): Pro
     }
     throw new Error('Failed to get signed URL: Unknown error');
   }
+}
+
+/**
+ * Simple concurrency limiter for async operations
+ */
+export function pLimit(concurrency: number) {
+  const queue: Array<() => void> = [];
+  let activeCount = 0;
+
+  const next = () => {
+    activeCount--;
+    if (queue.length > 0) {
+      const resolve = queue.shift();
+      if (resolve) resolve();
+    }
+  };
+
+  const run = async <T>(fn: () => Promise<T>): Promise<T> => {
+    if (activeCount >= concurrency) {
+      await new Promise<void>(resolve => queue.push(resolve));
+    }
+    activeCount++;
+    try {
+      return await fn();
+    } finally {
+      next();
+    }
+  };
+
+  return run;
 } 

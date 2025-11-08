@@ -16,8 +16,10 @@ Docuglean is a unified SDK for intelligent document processing using State of th
 - 🚀 **Easy to Use**: Simple, intuitive API with detailed documentation. Just pass in a file and get markdown in response.
 - 🔍 **OCR Capabilities**: Extract text from images and scanned documents
 - 📊 **Structured Data Extraction**: Use Zod schemas for type-safe data extraction
+- 📑 **Document Classification**: Intelligently split multi-section documents by category with automatic chunking
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, and Google Gemini, with more coming soon
+- ⚡ **Batch Processing**: Process multiple documents concurrently with automatic error handling
 - 🔒 **Type Safety**: Full TypeScript support with comprehensive types
 - 📝 **Document Parsers**: Local parsing for DOC, DOCX, PPTX, XLSX, XLS, ODS, ODT, ODP, CSV, TSV, and PDF files (no API required)
 
@@ -103,6 +105,82 @@ const extractResult = await extract({
 console.log('Date:', extractResult.date);
 console.log('Total:', extractResult.total);
 console.log('First item name:', extractResult.items[0]?.name);
+```
+
+### Document Classification - Split Documents by Category
+
+Intelligently classify and split documents into categories based on content. Perfect for processing multi-section documents like medical records, legal contracts, or research papers.
+
+```typescript
+import { classify } from 'docuglean-ocr';
+
+// Classify a patient medical record
+const result = await classify(
+  './patient-record.pdf',
+  [
+    {
+      name: 'Patient Intake Forms',
+      description: 'Pages with patient registration, insurance information, and consent forms'
+    },
+    {
+      name: 'Medical History',
+      description: 'Pages containing past medical history, medications, allergies, and family history'
+    },
+    {
+      name: 'Lab Results',
+      description: 'Pages with laboratory test results, blood work, and diagnostic reports'
+    },
+    {
+      name: 'Treatment Notes',
+      description: 'Pages with doctor\'s notes, treatment plans, and prescriptions'
+    }
+  ],
+  'your-api-key',
+  'mistral' // or 'openai', 'gemini'
+);
+
+// Access the results
+result.splits.forEach(split => {
+  console.log(`\n${split.name}:`);
+  console.log(`  Pages: ${split.pages}`);
+  console.log(`  Confidence: ${split.conf}`);
+});
+
+// Example output:
+// Patient Intake Forms:
+//   Pages: 1,2,3,4
+//   Confidence: high
+// Medical History:
+//   Pages: 5,6,7
+//   Confidence: high
+// Lab Results:
+//   Pages: 8,9,10,11,12
+//   Confidence: high
+// Treatment Notes:
+//   Pages: 13,14,15,16
+//   Confidence: high
+```
+
+**Key Features:**
+- 🎯 **Automatic Chunking**: Handles large documents (100+ pages) by automatically splitting into chunks
+- ⚡ **Concurrent Processing**: Processes chunks in parallel for faster results
+- 🎚️ **Confidence Scores**: Returns "high" or "low" confidence for each classification
+- 📊 **Page-Level Granularity**: Get exact page numbers for each category
+- 🔧 **Configurable**: Adjust chunk size and concurrency limits
+
+**Advanced Options:**
+```typescript
+const result = await classify(
+  './large-document.pdf',
+  [...],
+  'your-api-key',
+  'openai',
+  {
+    model: 'gpt-4o-mini', // Optional: specify model
+    chunkSize: 75, // Pages per chunk (default: 75)
+    maxConcurrent: 5 // Max parallel requests (default: 5)
+  }
+);
 ```
 
 ### Batch Processing - Process Multiple Documents Concurrently

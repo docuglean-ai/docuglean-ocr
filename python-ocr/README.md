@@ -7,8 +7,10 @@ A unified Python SDK for intelligent document processing using State of the Art 
 - 🚀 **Easy to Use**: Simple, intuitive API with detailed documentation
 - 🔍 **OCR Capabilities**: Extract text from images and scanned documents  
 - 📊 **Structured Data Extraction**: Use Pydantic models for type-safe data extraction
+- 📑 **Document Classification**: Intelligently split multi-section documents by category with automatic chunking
 - 📄 **Multimodal Support**: Process PDFs and images with ease
 - 🤖 **Multiple AI Providers**: Support for OpenAI, Mistral, Google Gemini, and Hugging Face
+- ⚡ **Batch Processing**: Process multiple documents concurrently with automatic error handling
 - 🔒 **Type Safety**: Full Python type hints with Pydantic validation
 - 📦 **Permissive Licensing**: Uses pdftext (Apache/BSD) instead of PyMuPDF (AGPL) for commercial-friendly PDF processing
 - 📝 **Document Parsers**: Built-in local parsers for DOCX, PPTX, XLSX, CSV, TSV, and PDF (no API required)
@@ -111,6 +113,79 @@ print("Summary:", summary.summary)
 ```
 
 Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
+
+### Document Classification - Split Documents by Category
+
+Intelligently classify and split documents into categories based on content. Perfect for processing multi-section documents like medical records, legal contracts, or research papers.
+
+```python
+from docuglean import classify, CategoryDescription
+
+# Classify a patient medical record
+result = await classify(
+    file_path="./patient-record.pdf",
+    categories=[
+        CategoryDescription(
+            name="Patient Intake Forms",
+            description="Pages with patient registration, insurance information, and consent forms"
+        ),
+        CategoryDescription(
+            name="Medical History",
+            description="Pages containing past medical history, medications, allergies, and family history"
+        ),
+        CategoryDescription(
+            name="Lab Results",
+            description="Pages with laboratory test results, blood work, and diagnostic reports"
+        ),
+        CategoryDescription(
+            name="Treatment Notes",
+            description="Pages with doctor's notes, treatment plans, and prescriptions"
+        )
+    ],
+    api_key="your-api-key",
+    provider="mistral"  # or "openai", "gemini"
+)
+
+# Access the results
+for split in result.splits:
+    print(f"\n{split.name}:")
+    print(f"  Pages: {split.pages}")
+    print(f"  Confidence: {split.conf}")
+    
+# Example output:
+# Patient Intake Forms:
+#   Pages: [1, 2, 3, 4]
+#   Confidence: high
+# Medical History:
+#   Pages: [5, 6, 7]
+#   Confidence: high
+# Lab Results:
+#   Pages: [8, 9, 10, 11, 12]
+#   Confidence: high
+# Treatment Notes:
+#   Pages: [13, 14, 15, 16]
+#   Confidence: high
+```
+
+**Key Features:**
+- 🎯 **Automatic Chunking**: Handles large documents (100+ pages) by automatically splitting into chunks
+- ⚡ **Concurrent Processing**: Processes chunks in parallel for faster results
+- 🎚️ **Confidence Scores**: Returns "high" or "low" confidence for each classification
+- 📊 **Page-Level Granularity**: Get exact page numbers for each category
+- 🔧 **Configurable**: Adjust chunk size and concurrency limits
+
+**Advanced Options:**
+```python
+result = await classify(
+    file_path="./large-document.pdf",
+    categories=[...],
+    api_key="your-api-key",
+    provider="openai",
+    model="gpt-4o-mini",  # Optional: specify model
+    chunk_size=75,  # Pages per chunk (default: 75)
+    max_concurrent=5  # Max parallel requests (default: 5)
+)
+```
 
 ### Batch Processing - Process Multiple Documents Concurrently
 
