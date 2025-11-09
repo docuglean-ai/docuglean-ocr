@@ -111,3 +111,37 @@ export interface OCRResult {
   images: any[];
   rawResponse: MistralOCRResponse;
 }
+
+// Classification types
+export interface CategoryDescription {
+  name: string;
+  description: string;
+  partitionKey?: string;
+}
+
+export interface ClassifyConfig {
+  filePath: string;
+  apiKey: string;
+  provider?: Provider;
+  model?: string;
+  categories: CategoryDescription[];
+  chunkSize?: number; // Pages per chunk, default 75
+  maxConcurrent?: number; // Max parallel requests, default 5
+}
+
+export interface Partition {
+  name: string;
+  pages: number[];
+  conf: 'low' | 'high';
+}
+
+export interface Split {
+  name: string;
+  pages: number[];
+  conf: 'low' | 'high';
+  partitions?: Partition[] | null;
+}
+
+export interface ClassifyResult {
+  splits: Split[];
+}

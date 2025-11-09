@@ -2,8 +2,17 @@
 OpenAI provider implementation for Docuglean OCR.
 """
 
+import json
 
-from ..types import ExtractConfig, OCRConfig, OpenAIOCRResponse, StructuredExtractionResult
+from ..types import (
+    ClassifyConfig,
+    ClassifyResult,
+    ExtractConfig,
+    OCRConfig,
+    OpenAIOCRResponse,
+    Split,
+    StructuredExtractionResult,
+)
 from ..utils import encode_image, is_image_file, is_url
 
 
@@ -179,3 +188,124 @@ async def process_doc_extraction_openai(config: ExtractConfig) -> StructuredExtr
         if isinstance(error, Exception):
             raise Exception(f"OpenAI document extraction failed: {error!s}")
         raise Exception("OpenAI document extraction failed: Unknown error")
+
+
+async def process_classify_openai(
+    config: ClassifyConfig,
+    page_range: tuple[int, int]
+) -> ClassifyResult:
+    """
+    Process document classification using OpenAI.
+    
+    Args:
+        config: Classification configuration
+        page_range: Tuple of (start_page, end_page) to classify (1-indexed)
+        
+    Returns:
+        ClassifyResult with splits for each category
+        
+    Raises:
+        Exception: If processing fails
+    """
+    from openai import OpenAI
+    import pypdf
+    
+    client = OpenAI(api_key=config.api_key)
+    
+    try:
+        # Extract text from the specified page range
+        start_page, end_page = page_range
+        page_texts = []
+        
+        with open(config.file_path, 'rb') as f:
+            reader = pypdf.PdfReader(f)
+            for page_num in range(start_page - 1, end_page):  # Convert to 0-indexed
+                if page_num < len(reader.pages):
+                    page = reader.pages[page_num]
+                    text = page.extract_text()
+                    page_texts.append(f"--- Page {page_num + 1} ---\n{text}")
+        
+        full_text = "\n\n".join(page_texts)
+        
+        # Build classification prompt
+        categories_desc = "\n".join([
+            f"- {cat.name}: {cat.description}"
+            for cat in config.categories
+        ])
+        
+        prompt = f"""Classify the following document pages into the appropriate categories. 
+For each page, determine which category it belongs to based on the descriptions below.
+
+Categories:
+{categories_desc}
+
+Document (pages {start_page} to {end_page}):
+{full_text}
+
+Return a JSON object with the following structure:
+{{
+  "classifications": [
+    {{
+      "page": <page_number>,
+      "category": "<category_name>",
+      "confidence": <0.0 to 1.0>
+    }}
+  ]
+}}
+
+Classify each page into exactly one category. Use confidence scores above 0.8 for clear matches."""
+
+        response = client.chat.completions.create(
+            model=config.model or "gpt-4o-mini",
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            response_format={"type": "json_object"},
+            temperature=0.3
+        )
+        
+        if not response or not response.choices or not response.choices[0].message:
+            raise Exception("No valid response from OpenAI classification")
+        
+        # Parse the response
+        result_json = json.loads(response.choices[0].message.content)
+        classifications = result_json.get("classifications", [])
+        
+        # Group pages by category
+        category_pages: dict[str, list[int]] = {cat.name: [] for cat in config.categories}
+        category_confidence: dict[str, list[float]] = {cat.name: [] for cat in config.categories}
+        
+        for classification in classifications:
+            page = classification.get("page")
+            category = classification.get("category")
+            confidence = classification.get("confidence", 0.5)
+            
+            if category in category_pages and page:
+                category_pages[category].append(page)
+                category_confidence[category].append(confidence)
+        
+        # Build splits
+        splits = []
+        for cat in config.categories:
+            pages = sorted(category_pages[cat.name])
+            if pages:
+                # Determine overall confidence
+                avg_conf = sum(category_confidence[cat.name]) / len(category_confidence[cat.name]) if category_confidence[cat.name] else 0.5
+                conf = "high" if avg_conf >= 0.8 else "low"
+                
+                splits.append(Split(
+                    name=cat.name,
+                    pages=pages,
+                    conf=conf,
+                    partitions=None  # TODO: Implement partition_key support
+                ))
+        
+        return ClassifyResult(splits=splits)
+        
+    except Exception as error:
+        if isinstance(error, Exception):
+            raise Exception(f"OpenAI classification failed: {error!s}")
+        raise Exception("OpenAI classification failed: Unknown error")
