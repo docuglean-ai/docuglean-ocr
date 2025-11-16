@@ -23,11 +23,13 @@ def validate_config(config: Union["OCRConfig", "ExtractConfig"]) -> None:
 class MistralOCRImage(BaseModel):
     """Mistral OCR image data."""
     id: str
-    top_left_x: float | None = Field(alias="topLeftX")
-    top_left_y: float | None = Field(alias="topLeftY")
-    bottom_right_x: float | None = Field(alias="bottomRightX")
-    bottom_right_y: float | None = Field(alias="bottomRightY")
-    image_base64: str | None = Field(alias="imageBase64", default=None)
+    top_left_x: float | None = None
+    top_left_y: float | None = None
+    bottom_right_x: float | None = None
+    bottom_right_y: float | None = None
+    image_base64: str | None = None
+
+    model_config = ConfigDict(extra='ignore')  # Ignore extra fields from API
 
 
 class MistralOCRDimensions(BaseModel):
