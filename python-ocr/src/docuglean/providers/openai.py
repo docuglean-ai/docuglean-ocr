@@ -228,12 +228,14 @@ async def process_classify_openai(
         full_text = "\n\n".join(page_texts)
         
         # Build classification prompt
-        categories_desc = "\n".join([
-            f"- {cat.name}: {cat.description}"
-            for cat in config.categories
-        ])
-        
-        prompt = f"""Classify the following document pages into the appropriate categories. 
+        if config.categories:
+            # User-specified categories
+            categories_desc = "\n".join([
+                f"- {cat.name}: {cat.description}"
+                for cat in config.categories
+            ])
+            
+            prompt = f"""Classify the following document pages into the appropriate categories. 
 For each page, determine which category it belongs to based on the descriptions below.
 
 Categories:
@@ -254,6 +256,26 @@ Return a JSON object with the following structure:
 }}
 
 Classify each page into exactly one category. Use confidence scores above 0.8 for clear matches."""
+        else:
+            # Auto-detect mode: let OpenAI determine categories
+            prompt = f"""Analyze the following document pages and classify them into appropriate document types based on their content.
+Use your knowledge to determine the most appropriate document category for each page (e.g., Invoice, Receipt, Contract, Report, Letter, Form, etc.).
+
+Document (pages {start_page} to {end_page}):
+{full_text}
+
+Return a JSON object with the following structure:
+{{
+  "classifications": [
+    {{
+      "page": <page_number>,
+      "category": "<category_name>",
+      "confidence": <0.0 to 1.0>
+    }}
+  ]
+}}
+
+Classify each page into exactly one category. Use descriptive category names that accurately represent the document type. Use confidence scores above 0.8 for clear matches."""
 
         response = client.chat.completions.create(
             model=config.model or "gpt-4o-mini",
@@ -274,34 +296,67 @@ Classify each page into exactly one category. Use confidence scores above 0.8 fo
         result_json = json.loads(response.choices[0].message.content)
         classifications = result_json.get("classifications", [])
         
-        # Group pages by category
-        category_pages: dict[str, list[int]] = {cat.name: [] for cat in config.categories}
-        category_confidence: dict[str, list[float]] = {cat.name: [] for cat in config.categories}
-        
-        for classification in classifications:
-            page = classification.get("page")
-            category = classification.get("category")
-            confidence = classification.get("confidence", 0.5)
+        if config.categories:
+            # User-specified categories: group pages by predefined categories
+            category_pages: dict[str, list[int]] = {cat.name: [] for cat in config.categories}
+            category_confidence: dict[str, list[float]] = {cat.name: [] for cat in config.categories}
             
-            if category in category_pages and page:
-                category_pages[category].append(page)
-                category_confidence[category].append(confidence)
-        
-        # Build splits
-        splits = []
-        for cat in config.categories:
-            pages = sorted(category_pages[cat.name])
-            if pages:
-                # Determine overall confidence
-                avg_conf = sum(category_confidence[cat.name]) / len(category_confidence[cat.name]) if category_confidence[cat.name] else 0.5
-                conf = "high" if avg_conf >= 0.8 else "low"
+            for classification in classifications:
+                page = classification.get("page")
+                category = classification.get("category")
+                confidence = classification.get("confidence", 0.5)
                 
-                splits.append(Split(
-                    name=cat.name,
-                    pages=pages,
-                    conf=conf,
-                    partitions=None  # TODO: Implement partition_key support
-                ))
+                if category in category_pages and page:
+                    category_pages[category].append(page)
+                    category_confidence[category].append(confidence)
+            
+            # Build splits
+            splits = []
+            for cat in config.categories:
+                pages = sorted(category_pages[cat.name])
+                if pages:
+                    # Determine overall confidence
+                    avg_conf = sum(category_confidence[cat.name]) / len(category_confidence[cat.name]) if category_confidence[cat.name] else 0.5
+                    conf = "high" if avg_conf >= 0.8 else "low"
+                    
+                    splits.append(Split(
+                        name=cat.name,
+                        pages=pages,
+                        conf=conf,
+                        partitions=None  # TODO: Implement partition_key support
+                    ))
+        else:
+            # Auto-detect mode: group pages by detected categories
+            category_pages: dict[str, list[int]] = {}
+            category_confidence: dict[str, list[float]] = {}
+            
+            for classification in classifications:
+                page = classification.get("page")
+                category = classification.get("category")
+                confidence = classification.get("confidence", 0.5)
+                
+                if category and page:
+                    if category not in category_pages:
+                        category_pages[category] = []
+                        category_confidence[category] = []
+                    category_pages[category].append(page)
+                    category_confidence[category].append(confidence)
+            
+            # Build splits from detected categories
+            splits = []
+            for category_name, pages in category_pages.items():
+                pages = sorted(pages)
+                if pages:
+                    # Determine overall confidence
+                    avg_conf = sum(category_confidence[category_name]) / len(category_confidence[category_name]) if category_confidence[category_name] else 0.5
+                    conf = "high" if avg_conf >= 0.8 else "low"
+                    
+                    splits.append(Split(
+                        name=category_name,
+                        pages=pages,
+                        conf=conf,
+                        partitions=None
+                    ))
         
         return ClassifyResult(splits=splits)
         

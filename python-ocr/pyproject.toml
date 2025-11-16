@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "docuglean-ocr"
-version = "1.0.0"
+version = "1.1.0"
 description = "An SDK for intelligent document processing using SOTA VLLM models"
 readme = "README.md"
 license = {text = "Apache-2.0"}

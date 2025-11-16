@@ -118,23 +118,25 @@ async def classify(
         raise ValueError("Valid API key is required")
     if not file_path or not file_path.strip():
         raise ValueError("Valid file path is required")
-    if not categories:
-        raise ValueError("At least one category is required")
+    # Allow empty categories for auto-detect mode
+    # if not categories:
+    #     raise ValueError("At least one category is required")
     
     if provider not in ["mistral", "openai", "gemini"]:
         raise ValueError(f"Provider {provider} not supported for classification")
     
     # Convert to CategoryDescription objects if needed
     category_objs = []
-    for cat in categories:
-        if isinstance(cat, CategoryDescription):
-            category_objs.append(cat)
-        else:
-            category_objs.append(CategoryDescription(
-                name=cat["name"],
-                description=cat["description"],
-                partition_key=cat.get("partitionKey")
-            ))
+    if categories:  # Only process if categories are provided
+        for cat in categories:
+            if isinstance(cat, CategoryDescription):
+                category_objs.append(cat)
+            else:
+                category_objs.append(CategoryDescription(
+                    name=cat["name"],
+                    description=cat["description"],
+                    partition_key=cat.get("partitionKey")
+                ))
     
     # Create config object
     config = ClassifyConfig(
