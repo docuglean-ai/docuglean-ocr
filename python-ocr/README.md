@@ -18,7 +18,7 @@ A unified Python SDK for intelligent document processing using State of the Art 
 ## Installation
 
 ```bash
-pip install docuglean-ocr
+pip install docuglean
 ```
 
 ## Quick Start

@@ -94,10 +94,10 @@ console.log('Summary:', summary.summary);
 Note: you can also use extract with a targeted "search" prompt (e.g., "Find all occurrences of X and return matching passages") to perform semantic search within a document.
 
 ### 🐍 Python SDK
-**Package:** `docuglean-ocr`
+**Package:** `docuglean`
 
 ```bash
-pip install docuglean-ocr
+pip install docuglean
 ```
 
 **Repository:** [python-ocr/](./python-ocr/)
