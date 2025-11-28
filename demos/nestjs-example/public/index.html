@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuglean Demo - Intelligent Document Processing</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📄 Docuglean Demo</h1>
+            <p>Intelligent Document Processing using State of the Art AI Models</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>Upload Document</h2>
+                
+                <form id="uploadForm">
+                    <div class="form-group">
+                        <label for="provider">AI Provider</label>
+                        <select id="provider" name="provider">
+                            <option value="openai">OpenAI</option>
+                            <option value="mistral">Mistral</option>
+                            <option value="gemini">Google Gemini</option>
+                        </select>
+                        <p class="info-text">Select the AI provider for document processing</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="apiKey">API Key</label>
+                        <input 
+                            type="text" 
+                            id="apiKey" 
+                            name="apiKey" 
+                            placeholder="Enter your API key"
+                            required
+                        >
+                        <p class="info-text">Your API key is never stored and only used for this request</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Select PDF Document</label>
+                        <div class="file-upload" id="fileUpload">
+                            <input 
+                                type="file" 
+                                id="fileInput" 
+                                name="file" 
+                                accept=".pdf"
+                                required
+                            >
+                            <div class="file-upload-icon">📎</div>
+                            <p><strong>Click to upload</strong> or drag and drop</p>
+                            <p class="info-text">PDF files only (max 10MB)</p>
+                            <div class="file-name" id="fileName"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn" id="submitBtn">
+                        Process Document
+                    </button>
+                </form>
+
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Processing your document...</p>
+                </div>
+
+                <div class="error" id="error"></div>
+            </div>
+
+            <div class="card">
+                <h2>Results</h2>
+                <div id="resultContent">
+                    <p style="color: #999; text-align: center; padding: 40px 0;">
+                        Upload a document to see the extracted data here
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>
+                Powered by <a href="https://github.com/docuglean-ai/docuglean" target="_blank">Docuglean</a> 
+                | Open Source Document Processing
+            </p>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
