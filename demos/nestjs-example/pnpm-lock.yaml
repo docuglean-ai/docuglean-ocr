@@ -23,6 +23,9 @@ importers:
       docuglean-ocr:
         specifier: ^1.0.0
         version: 1.0.0(ws@8.18.3)
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       reflect-metadata:
         specifier: ^0.2.2
         version: 0.2.2
@@ -1741,6 +1744,10 @@ packages:
 
   docuglean-ocr@1.0.0:
     resolution: {integrity: sha512-9yPzmD4lJBR2WhqVbDZpC4i+DIza2vGBVA93NG7Da8NGoJVg89azPUHaYhMO8jJQ7OzwEU/WSpx43wKR3y3Ltg==}
+
+  dotenv@17.2.3:
+    resolution: {integrity: sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w==}
+    engines: {node: '>=12'}
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -5440,6 +5447,8 @@ snapshots:
       - supports-color
       - utf-8-validate
       - ws
+
+  dotenv@17.2.3: {}
 
   dunder-proto@1.0.1:
     dependencies:
