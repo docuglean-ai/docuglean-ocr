@@ -1,98 +1,213 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Docuglean Demo – Intelligent Document Processing (NestJS + OCR)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This project is a lightweight demo application built with **NestJS** and a simple **HTML/JS frontend** for uploading and processing PDF documents using **Docuglean OCR** with multiple AI providers (OpenAI, Mistral, Gemini).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+Users can upload a PDF, provide their API key, select a provider, and receive rich extracted document data (title, summary, metadata, content, etc.).
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🚀 Features
 
-## Project setup
+- PDF upload with drag & drop support  
+- AI provider selection (OpenAI, Mistral, Gemini)  
+- Secure processing: API keys are **not stored**, only used per request  
+- Uses **Docuglean OCR** for intelligent extraction  
+- Clean JSON results view + "Copy JSON" button  
+- 10MB PDF upload limit  
+- Fully local-capable (no external backend needed beyond your machine)
 
-```bash
-$ pnpm install
-```
+---
 
-## Compile and run the project
+## 📦 Tech Stack
 
-```bash
-# development
-$ pnpm run start
+**Backend:**  
+- NestJS  
+- docuglean-ocr  
+- Zod (schema validation)  
+- Multer (file upload)  
+- ServeStatic for frontend
 
-# watch mode
-$ pnpm run start:dev
+**Frontend:**  
+- Plain HTML/CSS/JS (no frameworks)  
+- Fetch API form submission
 
-# production mode
-$ pnpm run start:prod
-```
+---
 
-## Run tests
+# 🛠️ Installation & Setup
+
+Follow these steps to clone, install, and run the project.
+
+---
+
+## 1️⃣ Clone the repository
 
 ```bash
-# unit tests
-$ pnpm run test
+git clone https://github.com/your-username/your-repo.git
+cd your-repo
+````
 
-# e2e tests
-$ pnpm run test:e2e
+---
 
-# test coverage
-$ pnpm run test:cov
-```
+## 2️⃣ Install dependencies
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Use any Node package manager. Example using **pnpm** (recommended by Nest):
 
 ```bash
-$ pnpm install -g mau
-$ mau deploy
+pnpm install
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Or using npm:
 
-## Resources
+```bash
+npm install
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+Or yarn:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+yarn install
+```
 
-## Support
+---
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 3️⃣ Create an environment file (optional)
 
-## Stay in touch
+The app supports `.env` for defining a custom port.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Create a `.env` file:
 
-## License
+```bash
+PORT=3000
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+If omitted, it defaults to **3000**.
+
+---
+
+## 4️⃣ Run the application
+
+### Development mode (auto-reload)
+
+```bash
+pnpm start:dev
+```
+
+### Standard start
+
+```bash
+pnpm start
+```
+
+### Production build
+
+```bash
+pnpm build
+pnpm start:prod
+```
+
+---
+
+# 🧪 Running Tests
+
+```bash
+pnpm test       # unit tests
+pnpm test:e2e   # e2e tests
+pnpm test:cov   # coverage
+```
+
+---
+
+# 🖥️ Using the App (What to do after installation)
+
+Once the server is running, open:
+
+```
+http://localhost:3000
+```
+
+You will see the frontend interface.
+
+### How to use it:
+
+1. **Select an AI provider**
+
+   * OpenAI
+   * Mistral
+   * Google Gemini
+
+2. **Enter your API key**
+
+   * The backend uses this key only for your request
+   * It is *never stored or logged*
+
+3. **Upload a PDF document**
+
+   * Must be ≤ 10MB
+   * Drag & drop or click to upload
+   * Only `.pdf` files accepted
+
+4. **Click “Process Document”**
+
+The backend will:
+
+* Store the file temporarily
+* Pass it to `docuglean-ocr`
+* Apply the Zod schema
+* Return extracted structured JSON
+* Delete the temp file
+
+The results then appear on the right side, where you can:
+
+✔ View formatted JSON
+✔ Copy JSON to clipboard
+✔ See success/error messages
+
+---
+
+# 🔧 API Route Details
+
+### `POST /process-document`
+
+Form-data fields:
+
+| Field    | Type        | Description           |           |          |
+| -------- | ----------- | --------------------- | --------- | -------- |
+| file     | file (.pdf) | PDF file to process   |           |          |
+| apiKey   | string      | Your provider API key |           |          |
+| provider | string      | "openai"              | "mistral" | "gemini" |
+
+Backend validates:
+
+* File existence
+* Key provided
+* Max size 10MB (via Multer)
+
+Returns:
+
+```json
+{
+  "success": true,
+  "data": { ...extracted fields... },
+  "filename": "your-file.pdf"
+}
+```
+
+Errors return:
+
+```json
+{
+  "statusCode": 400,
+  "message": "Failed to process document: ..."
+}
+```
+
+---
+
+# 📁 Project Structure
+
+```
+public/        → Frontend (HTML, CSS, JS)
+src/           → NestJS backend
+temp/          → Temporary uploaded files (auto-created)
+```
+
